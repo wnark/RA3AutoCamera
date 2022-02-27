@@ -69,6 +69,7 @@ y_split = 1
 # 计算结果向上取整
 y_split = math.ceil((map_upper_right_y-map_bottom_left_y)/384)*2-1
 
+print ("需要切分的区块数量为:" + str(y_split))
 
 # x，y轴每次增加的数值
 x_add = int((map_upper_right_x-map_bottom_left_x)/x_split)
@@ -131,7 +132,9 @@ else:
     end_x = map_bottom_left_x
     end_y = map_upper_right_y
 
-
+# 创建/清空文件内容
+with open ("output/RA3CameraBridge.dll.camera_config.txt","w+",encoding="utf-8") as camera_config:
+    pass
 
 
 
@@ -157,6 +160,8 @@ for rotation_angle in [operator.neg(r1_180),operator.neg(r1_135),operator.neg(r1
         animations_elements = [camera_time,{"label": "%s"%(camera_id),"r1": rotation_angle,"r2": camera_ground_angle,"r3": r3_ground,"x": camera_x,"y": camera_y,"z": map_height}]
         animations_output.append(animations_elements)
         while True:
+            # 回收使用的内存
+            # animations_output = []
             if (camera_x == map_bottom_left_x) :
                 # 此时相机在最左侧
                 if (camera_id & 1) == 0:
@@ -203,6 +208,10 @@ for rotation_angle in [operator.neg(r1_180),operator.neg(r1_135),operator.neg(r1
                 animations_elements = [camera_time,{"label": "%s"%(camera_id),"r1": rotation_angle,"r2": camera_ground_angle,"r3": r3_ground,"x": camera_x,"y": camera_y,"z": map_height}]
                 animations_output.append(animations_elements)
                 print ("生成完成"+"视角:"+str(rotation_angle)+","+"俯仰角:"+str(camera_ground_angle))
+                # 将生成的路径写入文件中
+
+                # 回收使用的内存
+                # animations_output = []
                 break
 
 
@@ -211,7 +220,7 @@ for rotation_angle in [operator.neg(r1_180),operator.neg(r1_135),operator.neg(r1
 # print (ra3_camera_json)
 
 # 格式化写入文件
-with open ("output/RA3CameraBridge.dll.camera_config.txt","w+",encoding="utf-8") as camera_config:
-    json.dump(ra3_camera_json,camera_config,indent=4)
+# with open ("output/RA3CameraBridge.dll.camera_config.txt","w+",encoding="utf-8") as camera_config:
+#     json.dump(ra3_camera_json,camera_config,indent=4)
 
 
