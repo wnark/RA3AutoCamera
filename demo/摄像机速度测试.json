@@ -1,0 +1,37 @@
+{
+    "cameraControls": [
+        {
+            "animations": [
+                [
+                    1, 
+                    {
+                        "label": "4800", 
+                        "r1": 0, 
+                        "r2": 45, 
+                        "r3": 0, 
+                        "x": 4800, 
+                        "y": 3571.80859375, 
+                        "z": 700
+                    }
+                ], 
+                [
+                    30, 
+                    {
+                        "label": "1800", 
+                        "r1": 0, 
+                        "r2": 45, 
+                        "r3": 0, 
+                        "x": 1800, 
+                        "y": 3571.80859375, 
+                        "z": 700
+                    }
+                ]
+            ], 
+            "description": "", 
+            "timedEvents": [ ]
+        }
+    ], 
+    "hotkeyAnimation": "E", 
+    "hotkeyDisplay": "Q", 
+    "hotkeyPause": "W"
+}
