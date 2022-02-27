@@ -69,7 +69,7 @@ y_split = 1
 # 计算为完美空三所需切割的数量
 # 由于根据拿尺量，小地图的y轴是50单位，90°视角的y轴是6单位，则最小视角下的物理宽度是(3600-400)/50*6=384
 # 计算结果向上取整
-# y_split = math.ceil((map_upper_right_y-map_bottom_left_y)/384)*2-1
+y_split = math.ceil((map_upper_right_y-map_bottom_left_y)/384)*2-1
 
 print ("需要切分的区块数量为:" + str(y_split))
 
@@ -116,6 +116,7 @@ else:
     end_x = map_bottom_left_x
     end_y = map_upper_right_y
 
+print ("终点的坐标是:" + str(end_x) + "," + str(end_y))
 # 创建/清空文件内容
 # 不能用json这个库，json这个库需要将整个json读入内存才能对其进行操作
 with open ("output/RA3CameraBridge.dll.camera_config.txt","w+",encoding="utf-8") as camera_config:
@@ -162,22 +163,12 @@ for rotation_angle in [operator.neg(r1_180),operator.neg(r1_135),operator.neg(r1
                     camera_y = camera_y+y_add
                     camera_id = camera_id + 1
                     camera_time = camera_time+y_add_time
-                    animations_elements = [camera_time,{"label": "%s"%(camera_id),"r1": rotation_angle,"r2": camera_ground_angle,"r3": r3_ground,"x": camera_x,"y": camera_y,"z": map_height}]
-                    # 将路径写入文件
-                    with open ("output/RA3CameraBridge.dll.camera_config.txt","a+",encoding="utf-8") as camera_config:
-                        json.dump(animations_elements,camera_config,indent=4)
-                        camera_config.write(",\n")
                 else:
                     # 当camera_id为奇数时，x轴数值增加
                     camera_x = camera_x+x_add
                     camera_y = camera_y
                     camera_id = camera_id + 1
                     camera_time = camera_time+x_add_time
-                    animations_elements = [camera_time,{"label": "%s"%(camera_id),"r1": rotation_angle,"r2": camera_ground_angle,"r3": r3_ground,"x": camera_x,"y": camera_y,"z": map_height}]
-                    # 将路径写入文件
-                    with open ("output/RA3CameraBridge.dll.camera_config.txt","a+",encoding="utf-8") as camera_config:
-                        json.dump(animations_elements,camera_config,indent=4)
-                        camera_config.write(",\n")
             else:
                 # 此时相机在最右侧
                 if (camera_id & 1) == 0:
@@ -186,35 +177,39 @@ for rotation_angle in [operator.neg(r1_180),operator.neg(r1_135),operator.neg(r1
                     camera_y = camera_y+y_add
                     camera_id = camera_id + 1
                     camera_time = camera_time+y_add_time
-                    animations_elements = [camera_time,{"label": "%s"%(camera_id),"r1": rotation_angle,"r2": camera_ground_angle,"r3": r3_ground,"x": camera_x,"y": camera_y,"z": map_height}]
-                    # 将路径写入文件
-                    with open ("output/RA3CameraBridge.dll.camera_config.txt","a+",encoding="utf-8") as camera_config:
-                        json.dump(animations_elements,camera_config,indent=4)
-                        camera_config.write(",\n")
                 else:
                     # 当camera_id为奇数时，x轴数值减少
                     camera_x = camera_x-x_add
                     camera_y = camera_y
                     camera_id = camera_id + 1
                     camera_time = camera_time+x_add_time
+
+            if camera_y > end_y:
+                # 当y轴大于终点y轴时,强制其为终点y轴,时间不用重新计算,最后一行不用拍摄,毕竟可以算作上一个点到达终点了
+                camera_y = end_y
+                if camera_x == end_x and camera_y == end_y:
+                    # 到达终点后,进行回归
+                    camera_id = 1
+                    camera_x = map_bottom_left_x
+                    camera_y = map_bottom_left_y
+                    camera_time = camera_time+int(int((math.pow(int(end_x-map_bottom_left_x),2)+math.pow(int(end_y-map_bottom_left_y),2)) ** 0.5)/camera_speed)
                     animations_elements = [camera_time,{"label": "%s"%(camera_id),"r1": rotation_angle,"r2": camera_ground_angle,"r3": r3_ground,"x": camera_x,"y": camera_y,"z": map_height}]
+                    print ("生成完成"+"视角:"+str(rotation_angle)+","+"俯仰角:"+str(camera_ground_angle))
                     # 将路径写入文件
                     with open ("output/RA3CameraBridge.dll.camera_config.txt","a+",encoding="utf-8") as camera_config:
                         json.dump(animations_elements,camera_config,indent=4)
                         camera_config.write(",\n")
-            if camera_x == end_x and camera_y == end_y:
-                # 当相机达到终点时,进行回归原点
-                camera_id = 1
-                camera_x = map_bottom_left_x
-                camera_y = map_bottom_left_y
-                camera_time = camera_time+int(int((math.pow(int(end_x-map_bottom_left_x),2)+math.pow(int(end_y-map_bottom_left_y),2)) ** 0.5)/camera_speed)
-                animations_elements = [camera_time,{"label": "%s"%(camera_id),"r1": rotation_angle,"r2": camera_ground_angle,"r3": r3_ground,"x": camera_x,"y": camera_y,"z": map_height}]
-                print ("生成完成"+"视角:"+str(rotation_angle)+","+"俯仰角:"+str(camera_ground_angle))
-                # 将路径写入文件
-                with open ("output/RA3CameraBridge.dll.camera_config.txt","a+",encoding="utf-8") as camera_config:
-                    json.dump(animations_elements,camera_config,indent=4)
-                    camera_config.write(",\n")
-                break
+                    break
+
+
+            animations_elements = [camera_time,{"label": "%s"%(camera_id),"r1": rotation_angle,"r2": camera_ground_angle,"r3": r3_ground,"x": camera_x,"y": camera_y,"z": map_height}]
+            # 将路径写入文件
+            with open ("output/RA3CameraBridge.dll.camera_config.txt","a+",encoding="utf-8") as camera_config:
+                json.dump(animations_elements,camera_config,indent=4)
+                camera_config.write(",\n")
+            
+
+
 
 # 使用shell脚本对文件进行处理,删除最后一个逗号
 os.system("powershell sed -i '$s/,$//' output/RA3CameraBridge.dll.camera_config.txt")
