@@ -55,3 +55,18 @@
   }
 ], 
 ```
+
+## 快捷键
+隐藏插件快捷键 Ctrl+Q
+时间暂停快捷键 Ctrl+W
+播放动画快捷键 Ctrl+E
+关闭游戏UI End
+
+## 将视频转化为图片
+[如何使用 ffmpeg 从视频文件中提取高质量的 JPEG 图像？](https://stackoverflow.com/questions/10225403/how-can-i-extract-a-good-quality-jpeg-image-from-a-video-file-with-ffmpeg)
+### 以无损格式输出图像，例如 PNG：
+不太好用，输出画面模糊
+
+### 直接输出jpg
+
+ffmpeg -i "C:\Users\xiaoh\Videos\1.mp4" -q:v 1 "jpg/out-%09d.jpg"
