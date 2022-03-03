@@ -62,11 +62,15 @@
 播放动画快捷键 Ctrl+E
 关闭游戏UI End
 
-## 将视频转化为图片
-[如何使用 ffmpeg 从视频文件中提取高质量的 JPEG 图像？](https://stackoverflow.com/questions/10225403/how-can-i-extract-a-good-quality-jpeg-image-from-a-video-file-with-ffmpeg)
-### 以无损格式输出图像，例如 PNG：
-不太好用，输出画面模糊
+## SMB性能优化
+[性能说明FAQ](https://help.aliyun.com/document_detail/65228.html)
 
-### 直接输出jpg
+[Slow SMB files transfer speed](https://docs.microsoft.com/en-us/windows-server/storage/file-server/troubleshoot/slow-file-transfer)
 
-ffmpeg -i "C:\Users\xiaoh\Videos\1.mp4" -q:v 1 "jpg/out-%09d.jpg"
+## 测试
+contextcapture 加载 13285张照片
+易米景，使用cc16,使用易米景的smb（底层机械的云主机创建的smb服务器），用时04:44.10
+
+99.150垃圾配置服务器，使用cc18,用时06:23.59
+
+IBM truenas，使用cc18,用时14:39.27
