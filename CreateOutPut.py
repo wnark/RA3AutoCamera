@@ -140,7 +140,8 @@ with open ("output/RA3CameraBridge.dll.camera_config.txt","a+",encoding="utf-8")
 # 切换角度需要预留一下时间进行切换
 for camera_ground_angle in [r2_45]:
     # 循环生成rotation_angle的9种情况:-180、-135、-90、45、0、45、90、135、180
-    for rotation_angle in [operator.neg(r1_180),operator.neg(r1_135),operator.neg(r1_90),operator.neg(r1_45),r1_0,r1_45,r1_90,r1_135,r1_180]:
+    # operator.neg(r1_180),operator.neg(r1_135),operator.neg(r1_90),operator.neg(r1_45),r1_0,r1_45,r1_90,r1_135,r1_180
+    for rotation_angle in [operator.neg(r1_180),operator.neg(r1_90),r1_0,r1_90,r1_180]:
         # 用while开始循环生成路径,当相机的坐标都等于最大坐标时才跳出循环。
         # 其实只需要判断camera_y < end_y即可
         # 每轮都从左下角原点重新开始
