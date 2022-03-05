@@ -27,8 +27,10 @@ camera_y = map_bottom_left_y
 camera_id = 1
 
 # 这里的z不能单纯看作是无人机高度，但为方便理解在这里依然可以看作是拍摄高度
+# 通过实测，高度是350时是最低高度可以观察到详细的信息
 map_lower = 200
 map_top = 700
+map_min = 350
 
 
 
@@ -139,76 +141,78 @@ with open ("output/RA3CameraBridge.dll.camera_config.txt","a+",encoding="utf-8")
 # 循环生成camera_ground_angle为90与45两种情况
 # 切换角度需要预留一下时间进行切换
 for camera_ground_angle in [r2_45]:
-    # 循环生成rotation_angle的9种情况:-180、-135、-90、45、0、45、90、135、180
-    # operator.neg(r1_180),operator.neg(r1_135),operator.neg(r1_90),operator.neg(r1_45),r1_0,r1_45,r1_90,r1_135,r1_180
-    for rotation_angle in [operator.neg(r1_180),operator.neg(r1_90),r1_0,r1_90,r1_180]:
-        # 用while开始循环生成路径,当相机的坐标都等于最大坐标时才跳出循环。
-        # 其实只需要判断camera_y < end_y即可
-        # 每轮都从左下角原点重新开始
-        # 在原点进行切换视角，时间1秒
-        camera_id = 1
-        camera_x = map_bottom_left_x
-        camera_y = map_bottom_left_y
-        camera_time = camera_time+1
-        animations_elements = [camera_time,{"label": "%s"%(camera_id),"r1": rotation_angle,"r2": camera_ground_angle,"r3": r3_ground,"x": camera_x,"y": camera_y,"z": map_height}]
-        # 将路径写入文件
-        with open ("output/RA3CameraBridge.dll.camera_config.txt","a+",encoding="utf-8") as camera_config:
-            json.dump(animations_elements,camera_config,indent=4)
-            camera_config.write(",\n")
-        while True:
-            if (camera_x == map_bottom_left_x) :
-                # 此时相机在最左侧
-                if (camera_id & 1) == 0:
-                    # 当camera_id为偶数时，x轴不变，y轴数值增加
-                    camera_x = camera_x
-                    camera_y = camera_y+y_add
-                    camera_id = camera_id + 1
-                    camera_time = camera_time+y_add_time
-                else:
-                    # 当camera_id为奇数时，x轴数值增加
-                    camera_x = camera_x+x_add
-                    camera_y = camera_y
-                    camera_id = camera_id + 1
-                    camera_time = camera_time+x_add_time
-            else:
-                # 此时相机在最右侧
-                if (camera_id & 1) == 0:
-                    # 当camera_id为偶数时，x轴不变，y轴数值增加
-                    camera_x = camera_x
-                    camera_y = camera_y+y_add
-                    camera_id = camera_id + 1
-                    camera_time = camera_time+y_add_time
-                else:
-                    # 当camera_id为奇数时，x轴数值减少
-                    camera_x = camera_x-x_add
-                    camera_y = camera_y
-                    camera_id = camera_id + 1
-                    camera_time = camera_time+x_add_time
-
-            if camera_y > end_y:
-                # 当y轴大于终点y轴时,强制其为终点y轴,时间不用重新计算,最后一行不用拍摄,毕竟可以算作上一个点到达终点了
-                camera_y = end_y
-                if camera_x == end_x and camera_y == end_y:
-                    # 到达终点后,进行回归
-                    camera_id = 1
-                    camera_x = map_bottom_left_x
-                    camera_y = map_bottom_left_y
-                    camera_time = camera_time+int(int((math.pow(int(end_x-map_bottom_left_x),2)+math.pow(int(end_y-map_bottom_left_y),2)) ** 0.5)/camera_speed)
-                    animations_elements = [camera_time,{"label": "%s"%(camera_id),"r1": rotation_angle,"r2": camera_ground_angle,"r3": r3_ground,"x": camera_x,"y": camera_y,"z": map_height}]
-                    print ("生成完成"+"视角:"+str(rotation_angle)+","+"俯仰角:"+str(camera_ground_angle))
-                    # 将路径写入文件
-                    with open ("output/RA3CameraBridge.dll.camera_config.txt","a+",encoding="utf-8") as camera_config:
-                        json.dump(animations_elements,camera_config,indent=4)
-                        camera_config.write(",\n")
-                    break
-
-
+    # 循环生成两种高度下拍摄的情况，在350时是最低观察高度
+    for map_height in [map_top,map_min]:
+        # 循环生成rotation_angle的9种情况:-180、-135、-90、45、0、45、90、135、180
+        # operator.neg(r1_180),operator.neg(r1_135),operator.neg(r1_90),operator.neg(r1_45),r1_0,r1_45,r1_90,r1_135,r1_180
+        for rotation_angle in [operator.neg(r1_180),operator.neg(r1_135),operator.neg(r1_90),operator.neg(r1_45),r1_0,r1_45,r1_90,r1_135,r1_180]:
+            # 用while开始循环生成路径,当相机的坐标都等于最大坐标时才跳出循环。
+            # 其实只需要判断camera_y < end_y即可
+            # 每轮都从左下角原点重新开始
+            # 在原点进行切换视角，时间1秒
+            camera_id = 1
+            camera_x = map_bottom_left_x
+            camera_y = map_bottom_left_y
+            camera_time = camera_time+1
             animations_elements = [camera_time,{"label": "%s"%(camera_id),"r1": rotation_angle,"r2": camera_ground_angle,"r3": r3_ground,"x": camera_x,"y": camera_y,"z": map_height}]
             # 将路径写入文件
             with open ("output/RA3CameraBridge.dll.camera_config.txt","a+",encoding="utf-8") as camera_config:
                 json.dump(animations_elements,camera_config,indent=4)
                 camera_config.write(",\n")
-            
+            while True:
+                if (camera_x == map_bottom_left_x) :
+                    # 此时相机在最左侧
+                    if (camera_id & 1) == 0:
+                        # 当camera_id为偶数时，x轴不变，y轴数值增加
+                        camera_x = camera_x
+                        camera_y = camera_y+y_add
+                        camera_id = camera_id + 1
+                        camera_time = camera_time+y_add_time
+                    else:
+                        # 当camera_id为奇数时，x轴数值增加
+                        camera_x = camera_x+x_add
+                        camera_y = camera_y
+                        camera_id = camera_id + 1
+                        camera_time = camera_time+x_add_time
+                else:
+                    # 此时相机在最右侧
+                    if (camera_id & 1) == 0:
+                        # 当camera_id为偶数时，x轴不变，y轴数值增加
+                        camera_x = camera_x
+                        camera_y = camera_y+y_add
+                        camera_id = camera_id + 1
+                        camera_time = camera_time+y_add_time
+                    else:
+                        # 当camera_id为奇数时，x轴数值减少
+                        camera_x = camera_x-x_add
+                        camera_y = camera_y
+                        camera_id = camera_id + 1
+                        camera_time = camera_time+x_add_time
+
+                if camera_y > end_y:
+                    # 当y轴大于终点y轴时,强制其为终点y轴,时间不用重新计算,最后一行不用拍摄,毕竟可以算作上一个点到达终点了
+                    camera_y = end_y
+                    if camera_x == end_x and camera_y == end_y:
+                        # 到达终点后,进行回归
+                        camera_id = 1
+                        camera_x = map_bottom_left_x
+                        camera_y = map_bottom_left_y
+                        camera_time = camera_time+int(int((math.pow(int(end_x-map_bottom_left_x),2)+math.pow(int(end_y-map_bottom_left_y),2)) ** 0.5)/camera_speed)
+                        animations_elements = [camera_time,{"label": "%s"%(camera_id),"r1": rotation_angle,"r2": camera_ground_angle,"r3": r3_ground,"x": camera_x,"y": camera_y,"z": map_height}]
+                        print ("生成完成"+"视角:"+str(rotation_angle)+","+"俯仰角:"+str(camera_ground_angle)+","+"高度:"+str(map_height))
+                        # 将路径写入文件
+                        with open ("output/RA3CameraBridge.dll.camera_config.txt","a+",encoding="utf-8") as camera_config:
+                            json.dump(animations_elements,camera_config,indent=4)
+                            camera_config.write(",\n")
+                        break
+
+
+                animations_elements = [camera_time,{"label": "%s"%(camera_id),"r1": rotation_angle,"r2": camera_ground_angle,"r3": r3_ground,"x": camera_x,"y": camera_y,"z": map_height}]
+                # 将路径写入文件
+                with open ("output/RA3CameraBridge.dll.camera_config.txt","a+",encoding="utf-8") as camera_config:
+                    json.dump(animations_elements,camera_config,indent=4)
+                    camera_config.write(",\n")
+                
 
 
 
