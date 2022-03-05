@@ -142,7 +142,7 @@ with open ("output/RA3CameraBridge.dll.camera_config.txt","a+",encoding="utf-8")
 # 切换角度需要预留一下时间进行切换
 for camera_ground_angle in [r2_45]:
     # 循环生成两种高度下拍摄的情况，在350时是最低观察高度
-    for map_height in [map_top,map_min]:
+    for map_height in [map_top]:
         # 循环生成rotation_angle的9种情况:-180、-135、-90、45、0、45、90、135、180
         # operator.neg(r1_180),operator.neg(r1_135),operator.neg(r1_90),operator.neg(r1_45),r1_0,r1_45,r1_90,r1_135,r1_180
         for rotation_angle in [operator.neg(r1_180),operator.neg(r1_135),operator.neg(r1_90),operator.neg(r1_45),r1_0,r1_45,r1_90,r1_135,r1_180]:
